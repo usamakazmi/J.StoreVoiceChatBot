@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<style>
+  .alert {
+    padding: 20px;
+    background-color: #2196F3;
+    color: white;
+  }
+  
+  .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .closebtn:hover {
+    color: black;
+  }
+  </style>
+<style>
+
+
+</style>
+
+</head>
+{% endblock %}
+
+{% block body %}
+
+<body style="background-image:url(/static/images/back2.jpg)">
+    <div  style="padding-bottom: 4%;padding-left: 10%;padding-right: 10%;background-image:url(/static/images/back2.jpg)">
+        <br>
+    <div style="zoom: 80%;padding: 2%;background-color: white;">
+      <div id="here">
+    <br>
+        <h1 style="text-align: center;font-family: Courier New;">J. Chat Bot</h1>
+        <br>
+    
+    {% if data|length < 1 %}
+    <h4 style="text-align: center"></h4>
+    {% else %}
+    {% for task in data %}
+            <tr>
+               
+                {% if task[1]=='User' %}
+                <div  style=" border: 2px solid #dedede;background-color: #f1f1f1;border-radius: 5px;padding: 10px;
+                    margin: 10px 0;text-align: left;width: 55%; height: 150px;border-radius: 5%;">
+                    <p>From {{ task[1] }}</p>
+                    <img src="/static/images/user.png" alt="Avatar" style="float: left;max-width: 60px;width: 100%;
+                    margin-right: 20px;border-radius: 50%;width:100%; float: left;">
+                    <br>
+                    <p>{{ task[2] }}</p>
+                    <span style="float: right">{{task[3]}}</span>
+                   
+                </div>
+                {% else %}
+                <div style="padding-left: 45%;">
+                  <div style= "border: 2px solid #dedede;background-color: #ccc;border-radius: 5px;padding: 10px;
+                      margin: 10px 0;text-align: right;width: 100%; height: 150px;border-radius: 5%;">
+                    <p>From {{ task[1] }}</p>
+                    <img src="/static/images/user.png" alt="Avatar" style="float: right;max-width: 60px;width: 100%;
+                    margin-left: 20px;border-radius: 50%;width:100%; float: right;">
+                    <br>
+                    <p>{{ task[2] }}</p>
+                    <span style="float: left">{{task[3]}}</span>
+                      
+                  </div>
+                 
+                </div>
+                  {% endif %}
+                <br>
+            </tr>
+    {% endfor %}
+    {% endif %}
+    <br>
+            
+    </div>
+    </div>
+    </div>
+    
+</body>
+<div class="col-md-12" style="position: fixed; bottom: 0;background-color: #ddd;">
+ 
+   
+        
+		<script>
+			/* JS comes here */
+		    function runSpeechRecognition() {
+          
+          
+		        // get output div reference
+		        var output = document.getElementById("output");
+		        // get action element reference
+		       
+                // new speech recognition object
+                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+                var recognition = new SpeechRecognition();
+                var action = document.getElementById("action");
+                // This runs when the speech recognition service starts
+                if(document.getElementById('output').value == "")
+                    {
+                      $("#action").show();
+                          
+                                    
+                                    recognition.onstart = function() {
+                                          action.innerHTML = "<h4>listening, please speak...</h4>";
+                                          if(document.getElementById('output').value == "")
+                                          {
+                                            $("#action").show();
+                                          }
+                                          //hide listen after 9 sec
+                                          $("#action").delay(9000).hide(900);
+                                      }
+                                      
+                                     
+                                          
+                                  
+                                    // This runs when the speech recognition service starts
+                                    // This runs when the speech recognition service returns result
+                                    recognition.onresult = function(event) {
+                                        var transcript = event.results[0][0].transcript;
+                                        //output.innerHTML = "<b>Text:</b> " + transcript + "<br/> <b>Confidence:</b> " + confidence*100+"%";
+                                        //output.innerHTML = transcript;
+
+                                        //putting user said value in input tag
+                                        document.getElementById('output').value =transcript;
+                                        //document.getElementById('output').form.submit();
+                                        //document.getElementById('form').form.submit();
+
+                                        var formData = {
+                                           'output'              : transcript,
+                                          };
+                                          
+                                          $("#spin").show();
+                                    // process the form
+                                    $.ajax({
+                                        type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+                                        url         : '/', // the url where we want to POST
+                                        data        : formData, // our data object
+                                        dataType    : 'text', // what type of data do we expect back from the server
+                                        encode          : true,
+                                        success: function(data){
+                                          //location.reload();
+
+                                              //reload chat div
+                                              $( "#here" ).load(window.location.href + " #here" );
+                                              //hide listen
+                                              $("#action").hide();
+                                              // Hide alert
+                                              $("#alert").hide();
+                                              //hide spinner
+                                              $("#spin").hide();
+		      
+                                              // Show the div in 5s
+                                              document.getElementById("action").innerHTML = " ";
+                                              $('#output').val('');
+                                              $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                                              let utter = new SpeechSynthesisUtterance();
+                                                  utter.lang = 'en-US';
+                                                  utter.text = data;
+                                                  utter.volume = 0.5;
+
+                                                  // speak
+                                                  window.speechSynthesis.speak(utter);
+                                              //window.location.hash = '#bottom';
+                                              //document.getElementById('bottom').scrollIntoView();
+
+                                              //show alert after 5 seconds
+                                              $("#alert").delay(5000).fadeIn(500);
+                                              
+
+                                        }
+                                    })
+                                        // using the done promise callback
+                                        .done(function(data) {
+                            
+                                            // log data to the console so we can see
+                                            console.log(data);
+                            
+                                            // here we will handle errors and validation messages
+                                        });
+                                        
+                            
+                                    // stop the form from submitting the normal way and refreshing the page
+                                    event.preventDefault();
+                                        
+                                    };
+                                  
+                                    // start recognition
+                                    recognition.start();
+                    }
+                else
+                {
+                  $("#action").hide();
+                }
+                recognition.onspeechend = function() {
+                      action.innerHTML = "<h4>stopped listening, hope you are done...</h4>";
+                      if(document.getElementById('output').value == "")
+                      { 
+                        //showing listen
+                        $("#action").show();
+                      }
+                      recognition.stop();
+                  }
+
+                
+	        }
+        </script>
+         <script>
+         $(document).ready(function() {
+
+            // process the form
+            $('form').submit(function(event) {
+        
+                // get the form data
+                // there are many ways to get this data using jQuery (you can use the class or id also)
+                var formData = {
+                    'output'              : $('input[name=output]').val(),
+                };
+                $("#spin").show();
+                // process the form
+                $.ajax({
+                    type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+                    url         : '/', // the url where we want to POST
+                    data        : formData, // our data object
+                    dataType    : 'text', // what type of data do we expect back from the server
+                    encode          : true,
+                    success: function(data){
+                       //alert("Deleted Student ID ");
+                       //location.reload();
+
+                          //Reloading the chat div
+                          $( "#here" ).load(window.location.href + " #here" );
+                          //Hide listening
+                          $("#action").hide();
+                          // Hide alert box
+                          $("#alert").hide();
+                          //hide spinner
+                          $("#spin").hide();
+
+                          document.getElementById("action").innerHTML = " ";
+                          $('#output').val('');
+                          $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+                          let utter = new SpeechSynthesisUtterance();
+                              utter.lang = 'en-US';
+                              utter.text = data;
+                              utter.volume = 0.5;
+
+                              // speak
+                              window.speechSynthesis.speak(utter);
+                          //window.location.hash = '#bottom';
+                          //document.getElementById('bottom').scrollIntoView();
+                          $("#alert").delay(5000).fadeIn(500);
+                     }
+                })
+                    // using the done promise callback
+                    .done(function(data) {
+        
+                        // log data to the console so we can see
+                        console.log(data);
+        
+                        // here we will handle errors and validation messages
+                    });
+                    
+        
+                // stop the form from submitting the normal way and refreshing the page
+                event.preventDefault();
+            });
+        
+        });
+        </script>
+    
+ 
+    <div id="spin" class="spinner-border text-primary" style="position: fixed;top: 50%;left: 50%;display: none; "role="status" >
+      <span class="sr-only">Loading...</span>
+    </div>
+
+    <div id="alert" class="alert" style="height: 90%;width: 100%;;text-align: center;">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+      <strong>Note:</strong> Type text then Press Button or Press button then Speak to chat with bot
+      
+    </div>
+    
+   <br style="zoom: 60%;">
+    <form style="padding-left: 100px;padding-right: 100px;" action="/" method="POST">
+      <div id="action" class="text-center" style="text-align: center;"></div>
+   
+    <input id="output" value="" type="text" placeholder="Type a message" name="output" style="width: 90%;height: 40px;border: thin;border-radius: 15%;">
+    <button onclick="runSpeechRecognition()" id="clickButton" type="submit" value=""  style="width: 8%;background-color:#2196F3;border-color: transparent;border-radius: 50%;"> <i style="zoom: 170%;" class="fas fa-microphone"></i><span style="zoom: 200%;">/</span><i style="zoom: 170%;" class="fa fa-paper-plane"></i></button>
+    
+    </form>
+        <br>
+</div>
+
+{% endblock %}
